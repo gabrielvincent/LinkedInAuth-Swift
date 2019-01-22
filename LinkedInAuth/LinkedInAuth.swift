@@ -97,7 +97,7 @@ public class LinkedInAuth: NSObject {
     
     fileprivate func requestAccessToken(WithConfiguration configuration: LinkedInAuthConfiguration, authorizationCode:String, success: @escaping (String) -> Void, fail: @escaping (Error) -> Void) {
         
-        print("Will request access token")
+        print("[LinkedInAuth]: Will request access token")
         
         if let url = URL(string: LinkedInAccessTokenURL_V2) {
             
