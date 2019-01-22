@@ -9,6 +9,10 @@
 import UIKit
 import WebKit
 
+fileprivate enum URLBuildingError: Error {
+    case invalidURL(string: String?)
+}
+
 public enum LinkedInAuthScope:String {
     
     case BasicProfile = "r_basicprofile"
@@ -26,7 +30,7 @@ public class LinkedInAuthConfiguration:NSObject {
     var scope:[LinkedInAuthScope]!
     var state:String?
     
-    public init(WithClientID clientID:String, clientSecret:String, redirectURI:String, scope:[LinkedInAuthScope], state:String?) {
+    public init(WithClientID clientID:String, clientSecret:String, redirectURI:String, scope:[LinkedInAuthScope], state:String? = "code") {
         
         super.init()
         
@@ -40,7 +44,10 @@ public class LinkedInAuthConfiguration:NSObject {
 
 public class LinkedInAuth: NSObject {
     
-    fileprivate let viewController = UIViewController(nibName: nil, bundle: nil)
+    static let shared = LinkedInAuth()
+    
+    fileprivate let webView:WKWebView!
+    fileprivate let viewController:UIViewController!
     fileprivate var acceptCompletionHandler:((String) -> Void)!
     fileprivate var cancelCompletionHandler:(() -> Void)!
     fileprivate var errorCompletionHandler:((Error) -> Void)!
@@ -48,8 +55,16 @@ public class LinkedInAuth: NSObject {
     fileprivate let LinkedInAuthenticationURL_V2 = "https://www.linkedin.com/oauth/v2/authorization"
     fileprivate let LinkedInAccessTokenURL_V2  = "https://www.linkedin.com/oauth/v2/accessToken"
     
-    public override init() {
+    fileprivate override init() {
+        
+        self.viewController = UIViewController(nibName: nil, bundle: nil)
+        self.viewController.view.frame = UIScreen.main.bounds
+        self.webView = WKWebView(frame: self.viewController.view.frame)
+        
         super.init()
+        
+        self.webView.navigationDelegate = self
+        self.viewController.view.addSubview(self.webView)
     }
     
     // MARK: - Private functions
@@ -59,7 +74,7 @@ public class LinkedInAuth: NSObject {
         return configuration.scope.map({$0.rawValue}).joined(separator: " ")
     }
     
-    fileprivate func authenticationURL(WithConfiguration configuration:LinkedInAuthConfiguration) -> URL? {
+    fileprivate func authenticationURL(WithConfiguration configuration:LinkedInAuthConfiguration) throws -> URL {
         
         var params = "?"
         params += "response_type=" + configuration.responseType
@@ -67,11 +82,15 @@ public class LinkedInAuth: NSObject {
         params += "&redirect_uri=" + configuration.redirectURI
         params += "&scope=" + self.scopeString(FromConfiguration: configuration)
         
-        guard let urlString = (LinkedInAuthenticationURL_V2 + params).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        guard let urlString = (LinkedInAuthenticationURL_V2 + params).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            
+            throw URLBuildingError.invalidURL(string: nil)
+        }
         
-        print(urlString)
-        
-        let url = URL(string: urlString)
+        guard let url = URL(string: urlString) else {
+            
+            throw URLBuildingError.invalidURL(string: urlString)
+        }
         
         return url
     }
@@ -130,33 +149,37 @@ public class LinkedInAuth: NSObject {
     
     fileprivate func requestAuthorization(WithConfiguration configuration: LinkedInAuthConfiguration, accepted: @escaping (String) -> Void, canceled: @escaping () -> Void, error: @escaping (Error) -> Void) {
         
-        guard let url = self.authenticationURL(WithConfiguration: configuration) else { return }
-        
-        let preferences = WKPreferences()
-        preferences.javaScriptEnabled = true
-        
-        let webViewConfiguration = WKWebViewConfiguration()
-        webViewConfiguration.preferences = preferences
-        
-        let request = URLRequest(url: url)
-        let webView = WKWebView(frame: UIScreen.main.bounds, configuration: webViewConfiguration)
-        
-        webView.navigationDelegate = self
-        self.viewController.view.frame = UIScreen.main.bounds
-        self.viewController.view.addSubview(webView)
-        
-        webView.load(request)
-        
-        self.acceptCompletionHandler = accepted
-        self.cancelCompletionHandler = canceled
-        self.errorCompletionHandler = error
-        
-        UIApplication.shared.mainWindow()?.rootViewController?.present(self.viewController, animated: true, completion: nil)
+        do {
+            
+            let url = try self.authenticationURL(WithConfiguration: configuration)
+            
+            print("[LinkedInAuth]: Will request authorization from: \(url.absoluteURL)")
+            
+            let request = URLRequest(url: url)
+            
+            self.webView.load(request)
+            
+            self.acceptCompletionHandler = accepted
+            self.cancelCompletionHandler = canceled
+            self.errorCompletionHandler = error
+            
+            UIApplication.shared.mainWindow()?.rootViewController?.present(self.viewController, animated: true, completion: nil)
+        }
+        catch URLBuildingError.invalidURL(let urlString) {
+            
+            NSException(name: NSExceptionName("URLBuildingException"), reason: "The URL built from the provided configuration is invalid. URL string: \(String(describing: urlString))", userInfo: nil).raise()
+        }
+        catch {
+            
+            NSException(name: NSExceptionName("UnknownException"), reason: "An uknown exception was raised from LinkedInAuth requestAuthorization method", userInfo: nil).raise()
+        }
     }
     
     // MARK: - Public functions
     
     public func authenticate(WithConfiguration configuration: LinkedInAuthConfiguration, success: @escaping (String) -> Void, fail: @escaping (Error) -> Void) {
+        
+        print("[LinkedInAuth]: Will authenticate with scope: \(configuration.scope.map({$0.rawValue}))")
         
         self.requestAuthorization(WithConfiguration: configuration, accepted: { (authorizationCode) in
             
@@ -188,19 +211,22 @@ extension LinkedInAuth: WKNavigationDelegate {
         
         if let url = navigationAction.request.url, let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true), let queryItems = urlComponents.queryItems {
             
+            print("[LinkedInAuth]: Found query items. Probably being redirected.")
+            
             if let code = queryItems.filter({$0.name == "code"}).first?.value {
                 
-                webView.stopLoading()
                 self.acceptCompletionHandler(code)
-                self.viewController.dismiss(animated: true, completion: nil)
                 
             }
             else if let _ = queryItems.filter({$0.name == "error"}).first?.value {
                 
-                webView.stopLoading()
                 self.cancelCompletionHandler()
-                self.viewController.dismiss(animated: true, completion: nil)
             }
+            
+            self.viewController.dismiss(animated: true, completion: nil)
+            
+            decisionHandler(.cancel)
+            return
         }
         
         decisionHandler(.allow)
