@@ -46,35 +46,35 @@ public class LinkedInAuth: NSObject {
     
     static let shared = LinkedInAuth()
     
-    fileprivate let webView:WKWebView!
-    fileprivate let viewController:UIViewController!
-    fileprivate var acceptCompletionHandler:((String) -> Void)!
-    fileprivate var cancelCompletionHandler:(() -> Void)!
-    fileprivate var errorCompletionHandler:((Error) -> Void)!
+    private let webView:WKWebView
+    private let viewController:UIViewController
+    private var acceptCompletionHandler:((String) -> Void)!
+    private var cancelCompletionHandler:(() -> Void)!
+    private var errorCompletionHandler:((Error) -> Void)!
     
-    fileprivate let LinkedInAuthenticationURL_V2 = "https://www.linkedin.com/oauth/v2/authorization"
-    fileprivate let LinkedInAccessTokenURL_V2  = "https://www.linkedin.com/oauth/v2/accessToken"
+    private let LinkedInAuthenticationURL_V2 = "https://www.linkedin.com/oauth/v2/authorization"
+    private let LinkedInAccessTokenURL_V2  = "https://www.linkedin.com/oauth/v2/accessToken"
     
-    fileprivate override init() {
-        
-        self.viewController = UIViewController(nibName: nil, bundle: nil)
-        self.viewController.view.frame = UIScreen.main.bounds
-        self.webView = WKWebView(frame: self.viewController.view.frame)
-        
-        super.init()
-        
-        self.webView.navigationDelegate = self
-        self.viewController.view.addSubview(self.webView)
-    }
+        private override init() {
+            
+            self.viewController = UIViewController(nibName: nil, bundle: nil)
+            self.viewController.view.frame = UIScreen.main.bounds
+            self.webView = WKWebView(frame: self.viewController.view.frame)
+            
+            super.init()
+            
+            self.webView.navigationDelegate = self
+            self.viewController.view.addSubview(self.webView)
+        }
     
     // MARK: - Private functions
     
-    fileprivate func scopeString(FromConfiguration configuration:LinkedInAuthConfiguration) -> String {
+    private func scopeString(FromConfiguration configuration:LinkedInAuthConfiguration) -> String {
         
         return configuration.scope.map({$0.rawValue}).joined(separator: " ")
     }
     
-    fileprivate func authenticationURL(WithConfiguration configuration:LinkedInAuthConfiguration) throws -> URL {
+    private func authenticationURL(WithConfiguration configuration:LinkedInAuthConfiguration) throws -> URL {
         
         var params = "?"
         params += "response_type=" + configuration.responseType
@@ -95,7 +95,7 @@ public class LinkedInAuth: NSObject {
         return url
     }
     
-    fileprivate func requestAccessToken(WithConfiguration configuration: LinkedInAuthConfiguration, authorizationCode:String, success: @escaping (String) -> Void, fail: @escaping (Error) -> Void) {
+    private func requestAccessToken(WithConfiguration configuration: LinkedInAuthConfiguration, authorizationCode:String, success: @escaping (String) -> Void, fail: @escaping (Error) -> Void) {
         
         print("[LinkedInAuth]: Will request access token")
         
@@ -147,7 +147,7 @@ public class LinkedInAuth: NSObject {
         }
     }
     
-    fileprivate func requestAuthorization(WithConfiguration configuration: LinkedInAuthConfiguration, accepted: @escaping (String) -> Void, canceled: @escaping () -> Void, error: @escaping (Error) -> Void) {
+    private func requestAuthorization(WithConfiguration configuration: LinkedInAuthConfiguration, accepted: @escaping (String) -> Void, canceled: @escaping () -> Void, error: @escaping (Error) -> Void) {
         
         do {
             
