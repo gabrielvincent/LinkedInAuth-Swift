@@ -55,17 +55,17 @@ public class LinkedInAuth: NSObject {
     private let LinkedInAuthenticationURL_V2 = "https://www.linkedin.com/oauth/v2/authorization"
     private let LinkedInAccessTokenURL_V2  = "https://www.linkedin.com/oauth/v2/accessToken"
     
-        private override init() {
-            
-            self.viewController = UIViewController(nibName: nil, bundle: nil)
-            self.viewController.view.frame = UIScreen.main.bounds
-            self.webView = WKWebView(frame: self.viewController.view.frame)
-            
-            super.init()
-            
-            self.webView.navigationDelegate = self
-            self.viewController.view.addSubview(self.webView)
-        }
+    private override init() {
+        
+        self.viewController = UIViewController(nibName: nil, bundle: nil)
+        self.viewController.view.frame = UIScreen.main.bounds
+        self.webView = WKWebView(frame: self.viewController.view.frame)
+        
+        super.init()
+        
+        self.webView.navigationDelegate = self
+        self.viewController.view.addSubview(self.webView)
+    }
     
     // MARK: - Private functions
     
