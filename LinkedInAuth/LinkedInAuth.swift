@@ -44,7 +44,7 @@ public class LinkedInAuthConfiguration:NSObject {
 
 public class LinkedInAuth: NSObject {
     
-    static let shared = LinkedInAuth()
+    static let manager = LinkedInAuth()
     
     private let webView:WKWebView
     private let viewController:UIViewController
@@ -55,6 +55,8 @@ public class LinkedInAuth: NSObject {
     private let LinkedInAuthenticationURL_V2 = "https://www.linkedin.com/oauth/v2/authorization"
     private let LinkedInAccessTokenURL_V2  = "https://www.linkedin.com/oauth/v2/accessToken"
     
+    private var urlObservation:NSKeyValueObservation?
+    
     private override init() {
         
         self.viewController = UIViewController(nibName: nil, bundle: nil)
@@ -63,11 +65,35 @@ public class LinkedInAuth: NSObject {
         
         super.init()
         
-        self.webView.navigationDelegate = self
         self.viewController.view.addSubview(self.webView)
+        
+        self.urlObservation = self.webView.observe(\.url) { [weak self] (webView, change) in
+            
+            self?.webViewURLDidChange(webView)
+        }
     }
     
     // MARK: - Private functions
+    
+    private func webViewURLDidChange(_ webView:WKWebView) {
+        
+        if let url = webView.url, let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true), let queryItems = urlComponents.queryItems {
+            
+            print("[LinkedInAuth]: Found query items. Probably being redirected.")
+            
+            if let code = queryItems.filter({$0.name == "code"}).first?.value {
+                
+                self.acceptCompletionHandler(code)
+                
+            }
+            else if let _ = queryItems.filter({$0.name == "error"}).first?.value {
+                
+                self.cancelCompletionHandler()
+            }
+            
+            self.viewController.dismiss(animated: true, completion: nil)
+        }
+    }
     
     private func scopeString(FromConfiguration configuration:LinkedInAuthConfiguration) -> String {
         
@@ -204,34 +230,6 @@ public class LinkedInAuth: NSObject {
 }
 
 // MARK: - Extensions
-
-extension LinkedInAuth: WKNavigationDelegate {
-    
-    private func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        
-        if let url = navigationAction.request.url, let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true), let queryItems = urlComponents.queryItems {
-            
-            print("[LinkedInAuth]: Found query items. Probably being redirected.")
-            
-            if let code = queryItems.filter({$0.name == "code"}).first?.value {
-                
-                self.acceptCompletionHandler(code)
-                
-            }
-            else if let _ = queryItems.filter({$0.name == "error"}).first?.value {
-                
-                self.cancelCompletionHandler()
-            }
-            
-            self.viewController.dismiss(animated: true, completion: nil)
-            
-            decisionHandler(.cancel)
-            return
-        }
-        
-        decisionHandler(.allow)
-    }
-}
 
 fileprivate extension UIApplication {
     
