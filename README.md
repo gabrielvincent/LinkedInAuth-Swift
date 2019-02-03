@@ -46,7 +46,7 @@ LinkedInAuth.manager.authenticate(WithConfiguration: liAuthConfiguration, succes
 
 A `UIViewController` will be presented modally containing the `WKWebView` that will handle the authentication flux:
 
-![LinkedIn authentication dialog screenshot](https://i.imgur.com/DTAhG8P.png)
+![LinkedIn authentication dialog screenshot](https://i.imgur.com/dWYw7wD.png)
 
 ### Redirect URI
 
