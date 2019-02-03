@@ -157,7 +157,7 @@ public class LinkedInAuth: NSObject {
                             return
                         }
                         
-                        fail(NSError(domain: "Didn't get access token", code: 2, userInfo: json))
+                        fail(NSError(domain: "Didn't get access token. Response data: \(json.debugDescription)", code: 2, userInfo: json))
                     }
                 }
                 catch let error {
