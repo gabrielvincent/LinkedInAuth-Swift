@@ -23,10 +23,10 @@ First, create a configuration object:
 
 ````swift
 let liAuthConfiguration = LinkedInAuthConfiguration(WithClientID: "YOUR_LINKEDIN_CLIENT_ID",
-                                                      clientSecret: "YOUR_LINKEDIN_CLIENT_SECRET",
-                                                      redirectURI: "https://your_redirect_uri.com",
-                                                      scope: [.BasicProfile, .EmailAddress],
-                                                      state: nil)
+                                                    clientSecret: "YOUR_LINKEDIN_CLIENT_SECRET",
+                                                    redirectURI: "https://your_redirect_uri.com",
+                                                    scope: [.BasicProfile, .EmailAddress],
+                                                    state: nil)
 ````
 
 Then, use those configurations to begin the authentication flux:
