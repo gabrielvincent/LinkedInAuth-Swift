@@ -6,7 +6,7 @@ A library written in Swift for authenticating with LinkedIn through OAuth2.
 
 The LinkedIn iOS SDK is broken by default. It forces the user to have the LinkedIn app installed on their device. This library abstracts the authentication flux using LinkedIn's OAuth2 API in an embeded `WKWebView` within the app.
 
-## Instalation
+## Installation
 
 ### Carthage
 
