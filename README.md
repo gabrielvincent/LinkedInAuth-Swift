@@ -19,7 +19,7 @@ github "gabrielvincent/LinkedInAuth-Swift"
 
 A sample app is available at https://github.com/gabrielvincent/LinkedInAuth-SampleApp
 
-Make sure you have an app created in you LinkedIn developer account (https://www.linkedin.com/developers/apps). There you'll be able to get you client id, client secret and set the redirect URI.
+Make sure you have an app created in you LinkedIn developer account (https://www.linkedin.com/developers/apps). There you'll be able to get your client id, client secret and set the redirect URI.
 
 First, create a configuration object:
 
