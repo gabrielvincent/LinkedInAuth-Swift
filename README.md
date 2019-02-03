@@ -44,6 +44,10 @@ LinkedInAuth.manager.authenticate(WithConfiguration: liAuthConfiguration, succes
 }
 ````
 
+A `UIViewController` will be presented modally containing the `WKWebView` that will handle the authentication flux:
+
+![LinkedIn authentication dialog screenshot](https://i.imgur.com/DTAhG8P.png)
+
 ### Redirect URI
 
 This library doesn't require a working URI endpoint in order to get the authorization code returned after the user authorizes your app. The authorization code is captured by the `WKWebView` instance presenting the authentication dialog. Still, a valid URI is required by LinkedIn.
