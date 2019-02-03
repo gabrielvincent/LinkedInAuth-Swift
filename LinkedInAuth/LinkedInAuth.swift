@@ -40,6 +40,8 @@ public class LinkedInAuthConfiguration:NSObject {
         self.scope = scope
         self.state = state
     }
+    
+    // MARK: - Class functions
 }
 
 public class LinkedInAuth: NSObject {
@@ -95,18 +97,13 @@ public class LinkedInAuth: NSObject {
         }
     }
     
-    private func scopeString(FromConfiguration configuration:LinkedInAuthConfiguration) -> String {
-        
-        return configuration.scope.map({$0.rawValue}).joined(separator: " ")
-    }
-    
     private func authenticationURL(WithConfiguration configuration:LinkedInAuthConfiguration) throws -> URL {
         
         var params = "?"
         params += "response_type=" + configuration.responseType
         params += "&client_id=" + configuration.clientID
         params += "&redirect_uri=" + configuration.redirectURI
-        params += "&scope=" + self.scopeString(FromConfiguration: configuration)
+        params += "&scope=" + configuration.scope.asString()
         
         guard let urlString = (LinkedInAuthenticationURL_V2 + params).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             
@@ -259,5 +256,13 @@ fileprivate extension Dictionary {
         }
         
         return string
+    }
+}
+
+fileprivate extension Array where Element == LinkedInAuthScope {
+    
+    func asString() -> String {
+        
+        return self.map({$0.rawValue}).joined(separator: " ")
     }
 }
