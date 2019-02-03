@@ -44,7 +44,7 @@ public class LinkedInAuthConfiguration:NSObject {
 
 public class LinkedInAuth: NSObject {
     
-    static let manager = LinkedInAuth()
+    public static let manager = LinkedInAuth()
     
     private let webView:WKWebView
     private let viewController:UIViewController
@@ -84,14 +84,14 @@ public class LinkedInAuth: NSObject {
             if let code = queryItems.filter({$0.name == "code"}).first?.value {
                 
                 self.acceptCompletionHandler(code)
+                self.viewController.dismiss(animated: true, completion: nil)
                 
             }
             else if let _ = queryItems.filter({$0.name == "error"}).first?.value {
                 
                 self.cancelCompletionHandler()
+                self.viewController.dismiss(animated: true, completion: nil)
             }
-            
-            self.viewController.dismiss(animated: true, completion: nil)
         }
     }
     
