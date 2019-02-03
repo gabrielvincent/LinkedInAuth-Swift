@@ -2,7 +2,7 @@
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
-A library written in Swift for authenticating with LinkedIn through OAuth2.
+A library written in Swift for authenticating with LinkedIn using OAuth2.
 
 The LinkedIn iOS SDK is broken by default. It forces the user to have the LinkedIn app installed on their device. This library abstracts the authentication flux using LinkedIn's OAuth2 API in an embeded `WKWebView` within the app.
 
