@@ -247,14 +247,16 @@ fileprivate extension Dictionary {
         
         for key in self.keys {
             
-            let stringKey = key as! String
-            let value = self[key] as! String
+            if let value = self[key] {
+                
+                if !string.isEmpty {
+                    
+                    string += itemsSeparator
+                }
             
-            string += stringKey + keyValueSeparator + value
-            string += itemsSeparator
+                string += "\(key)" + keyValueSeparator + "\(value)"
+            }
         }
-        
-        string.removeLast()
         
         return string
     }
