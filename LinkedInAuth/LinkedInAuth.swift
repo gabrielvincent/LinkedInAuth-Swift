@@ -75,6 +75,25 @@ public class LinkedInAuth: NSObject {
         }
     }
     
+    // MARK: - Class functions
+    
+    public class func localizedAttribute(_ attribute:String, FromLinkedInProfileData profileData:[AnyHashable:Any]) -> String? {
+        
+        if
+            let localizedAttribute = profileData[attribute] as? [AnyHashable:Any],
+            let preferredLocale = localizedAttribute["preferredLocale"] as? [AnyHashable:Any],
+            let language = preferredLocale["language"] as? String,
+            let contry = preferredLocale["country"] as? String,
+            let localized = localizedAttribute["localized"] as? [AnyHashable:Any],
+            let attr = localized["\(language)_\(contry)"] as? String
+        {
+            
+            return attr
+        }
+        
+        return nil
+    }
+    
     // MARK: - Private functions
     
     private func webViewURLDidChange(_ webView:WKWebView) {
