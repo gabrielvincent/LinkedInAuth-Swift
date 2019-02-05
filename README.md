@@ -17,7 +17,9 @@ github "gabrielvincent/LinkedInAuth-Swift"
 ````
 ### Usage
 
-Make sure you have an app created in you LinkedIn developer account (https://www.linkedin.com/developers/apps). There you'll be able to get you client id, client secret and set the redirect URI.
+A sample app is available at https://github.com/gabrielvincent/LinkedInAuth-SampleApp
+
+Make sure you have an app created in you LinkedIn developer account (https://www.linkedin.com/developers/apps). There you'll be able to get your client id, client secret and set the redirect URI.
 
 First, create a configuration object:
 
@@ -44,7 +46,7 @@ LinkedInAuth.manager.authenticate(WithConfiguration: liAuthConfiguration, succes
 }
 ````
 
-A `UIViewController` will be presented modally containing the `WKWebView` that will handle the authentication flux:
+A `UIViewController` will be presented modally containing the `WKWebView` that will handle the authentication flow:
 
 ![LinkedIn authentication dialog screenshot](https://i.imgur.com/dWYw7wD.png)
 
